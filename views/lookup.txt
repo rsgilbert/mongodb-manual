@@ -1,0 +1,51 @@
+// create data 
+db.inventory.insertMany([ { prodId: 100, price: 20, quantity: 125 }, { prodId: 101, price: 10, quantity: 234 }, { prodId: 102, price: 15, quantity: 432 }, { prodId: 103, price: 17, quantity: 320 }])
+
+db.orders.insertMany([
+... {orderId: 201, custId: 301, prodId: 100, numPurchased: 20},
+... {orderId: 202, custId: 302, prodId: 101, numPurchased: 10}, 
+... {orderId: 203, custId: 303, prodId: 102, numPurchased: 5},
+... {orderId: 204, custId: 303, prodId: 103, numPurchased: 15},
+... {orderId: 205, custId: 303, prodId: 103, numPurchased: 20},
+... {orderId: 206, custId: 302, prodId: 102, numPurchased: 1},
+... {orderId: 207, custId: 302, prodId: 101, numPurchased: 5},
+... {orderId: 208, custId: 301, prodId: 100, numPurchased: 10},
+... {orderId: 209, custId: 303, prodId: 103, numPurchased: 30}
+... ])
+
+// create sales view 
+db.createView("sales", "orders", [
+... {
+... $lookup: { from: "inventory", localField: "prodId", foreignField: "prodId", as: "inventoryDocs" },
+... },
+... {
+... $project: { _id: 0, prodId: 1, orderId: 1, numPurchased: 1, 
+price: "$inventoryDocs.price" }
+... },
+... {$unwind: "$price"}
+... ])
+
+// an easier to understand how it works example is:
+db.createView("sales4", "orders", [ { $lookup: { from: "inventory", localField: "prodId", foreignField: "prodId", as: "inventoryDocs" } }, { $project: { _id: 0, prodId: 1, numPurchased: true, inventoryDocs: 1 } }])
+
+// query view 
+examples> db.sales.find()
+// query result:
+[
+  { orderId: 201, prodId: 100, numPurchased: 20, price: 20 },   
+  { orderId: 202, prodId: 101, numPurchased: 10, price: 10 },   
+  { orderId: 203, prodId: 102, numPurchased: 5, price: 15 },    
+  { orderId: 204, prodId: 103, numPurchased: 15, price: 17 },   
+  { orderId: 205, prodId: 103, numPurchased: 20, price: 17 },   
+  { orderId: 206, prodId: 102, numPurchased: 1, price: 15 },    
+  { orderId: 207, prodId: 101, numPurchased: 5, price: 10 },    
+  { orderId: 208, prodId: 100, numPurchased: 10, price: 20 },   
+  { orderId: 209, prodId: 103, numPurchased: 30, price: 17 }  
+
+// find total quantities sold per product 
+examples> db.sales.aggregate([ { $group: { _id: "$prodId", qtySold: {$sum: "$numPurchased"} } }])
+
+// find total amount sold 
+examples> db.sales.aggregate([ { $group: { _id: "$prodId", amountSold: {$sum: {$multiply: [ "$numPurchased", "$price" ] } } } }])
+
+

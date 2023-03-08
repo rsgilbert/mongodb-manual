@@ -1,0 +1,22 @@
+// create places collection
+examples> db.places.insertMany([
+... {_id: 1, category: "café" },
+... {_id: 2, category: "cafe" },
+... {_id: 3, category: "cafE" }
+... ])
+
+// create view 
+examples> db.createView("placesView", "places", [{$project: {category: 1}}], {collation: {locale:"fr", strength: 1}})
+
+// use view 
+db.placesView.find() 
+db.placesView.count({ category: "cafe" }) // gives: 3
+
+// create other views
+examples> db.createView("placesViewDefault", "places", [{$project: {category: 1}}])
+examples> db.createView("placesViewEn2", "places", [{$project: {category: 1}}], {collation: {locale:"en", strength: 5}})
+
+
+
+
+

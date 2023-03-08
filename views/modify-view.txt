@@ -1,0 +1,27 @@
+// insert data 
+examples> db.products.insertMany([
+... {quantity: 10, _id: 101, name:"Tomatoes"},
+... {quantity: 2, _id: 102, name: "Irish potatoes"},
+... {quantity: 3, _id: 103, name: "Pawpaw"},
+... {quantity: 5, _id: 104, name: "Ginger"},
+... {quantity: 0, _id: 105, name: "Oranges"}
+... ])
+
+// define view 
+db.createView("lowStock", "products", [{$match:{quantity: {$lte: 3}}}])
+
+// query view 
+examples> db.lowStock.find()
+
+// drop view 
+examples> db.lowStock.drop() 
+
+// recreate view with a change 
+examples> db.createView("lowStock", "products", [{$match:{quantity: {$lte: 2}}}])
+
+// modify view using collMod
+examples> db.runCommand({ 
+... collMod: "lowStock",
+... viewOn: "products",
+... "pipeline": [{$match: {quantity: {$lte: 0}}}]
+... })
