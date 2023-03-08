@@ -1,0 +1,14 @@
+// create capped collection 
+examples> db.createCollection("mylogs", {capped: true, size: 4096, max: 3 })
+
+// query with result sorted in descending order 
+examples> db.mylogs.find().sort({ $natural:  -1})
+
+// find out if a collection is capped 
+examples> db.mylogs.isCapped()
+
+// convert a collection to capped 
+examples> db.runCommand({"convertToCapped":"places", size: 4096 })
+
+// change max objects in a capped collection 
+examples> db.runCommand({collMod:"places", cappedMax: 4})
