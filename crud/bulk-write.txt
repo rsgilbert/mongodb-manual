@@ -1,0 +1,6 @@
+examples> db.pizzas.bulkWrite([ { insertOne: { document: {_id:1, type: "beef", size: "medium", price:2000 }}},
+... {insertOne: {document: {_id:2, type:"salmon", price:
+4000}}},
+... {updateOne: { filter: { type: 'beef' } , update: { $set: {price: 5000} } } }
+...
+... ])

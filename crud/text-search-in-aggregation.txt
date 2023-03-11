@@ -1,0 +1,45 @@
+// prep 
+examples> db.articles.insertMany([
+... { subject: "Papaya", contents: "What a sweet fruit" },
+... { subject: "Mongodb", content: "This is an awesome databa
+se" },
+... { subject: "Greenland", contents: "A very cold country" }
+,
+... { subject: "Gilbert", contents: "A man looking for someth
+ing" }
+... ])
+examples> db.articles.updateMany({}, {$set:{views: 10}})  
+
+
+// create index 
+examples> db.articles.createIndex({ subject: "text", contents
+contents: "text" })
+
+// perform a simple search 
+examples> db.articles.find({ $text: {$search: "man" } })
+
+// first try a simple aggregate 
+examples> db.articles.aggregate([ { $match: { subject: "aggregation" } } ])
+
+// search for results 
+examples> db.articles.aggregate([ { $match: { $text: {$search: "aggregation papaya very score" } } }, { $sort: { score: { $meta: "textScore" } } }, { $project: {_id: 0 } } ])
+
+// filter to only matches that have a score >= 0.75
+examples> db.articles.aggregate([ { $match: { $text: { $search: "example gilbert man" } } }, {$project: {_id:0, subject:1, score: {$meta: "textScore"} } }, {$match: { score: { $gte: 0.75 } } } ])
+
+// calculate total views of matched criteria 
+examples> db.articles.aggregate([ { $match: { $text: { $search: "example gilbert man papaya" } } }, { $group: {_id: null, views: { $sum: "$views"} } }   ])
+// result: [ { _id: null, views: 22 } ]
+
+// specify language to use for the search 
+examples> db.articles.aggregate([ { $match: { $text: { $search: "example gilbert man papaya", $language: "es" } } }   ])
+
+
+
+
+
+
+
+
+
+

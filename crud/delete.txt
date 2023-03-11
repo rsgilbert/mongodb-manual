@@ -1,0 +1,6 @@
+//delete many 
+examples> db.temperatures.deleteMany({ _id: {$gte: 2}})
+
+// delete one 
+examples> db.temperatures.deleteOne({})
+

@@ -1,0 +1,68 @@
+// prep 
+db.stores.insertMany(
+   [
+     { _id: 1, name: "Java Hut", description: "Coffee and cakes" },
+     { _id: 2, name: "Burger Buns", description: "Gourmet hamburgers" },
+     { _id: 3, name: "Coffee Shop", description: "Just coffee" },
+     { _id: 4, name: "Clothes Clothes Clothes", description: "Discount clothing" },
+     { _id: 5, name: "Java Shopping", description: "Indonesian goods" }
+   ]
+)
+
+// create text index 
+test> db.stores.createIndex({ name: "text", description: "text" }
+)
+
+// perform a search 
+test> db.stores.find({ $text: { $search: "coffee" } })
+test> db.stores.find({ $text: { $search: `"just coffee"` } })
+
+// exclude a word using - 
+test> db.stores.find({ $text: { $search: 'shop  -coffee' } })
+
+// project relevance score 
+test> db.stores.find({ $text: { $search: 'shop  -coffee' } }, { score: { $meta: "textScore" } })
+
+// sort based on relevance score 
+test> db.stores.find({ $text: { $search: 'shop good' } }, { score: { $meta: "textScore" } }).sort({ score: { $meta: "textS
+core" } })
+
+
+// create text index on people collection 
+// current data:
+examples> db.people.find()
+[
+  {
+    _id: ObjectId("640c046835bf273aa07f8419"),
+    name: 'Sam',
+    friends: [ { name: 'Dean', age: 25 }, { name: 'Michael', age: 100000 } ]
+  },
+  {
+    _id: ObjectId("640c046835bf273aa07f841a"),
+    name: 'Aang',
+    friends: [
+      { name: 'Katara', age: 15 },
+      { name: 'Toph', age: 12 },
+      { name: 'Soka', age: 16 }
+    ]
+  }
+]
+
+// create index 
+examples> db.people.createIndex({ name: "text", "friends.name": "text" })
+
+// search 
+examples> db.people.find({ $text: {$search: "toph" }})
+
+
+
+
+
+
+
+
+
+
+
+
+
