@@ -1,0 +1,37 @@
+// prepare data 
+db.inventory.insertMany( [
+  { item: "journal", status: "A", size: { h: 14, w: 21, uom: "cm" }, instock: [ { warehouse: "A", qty: 5 } ] },
+  { item: "notebook", status: "A",  size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "C", qty: 5 } ] },
+  { item: "paper", status: "D", size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "A", qty: 60 } ] },
+  { item: "planner", status: "D", size: { h: 22.85, w: 30, uom: "cm" }, instock: [ { warehouse: "A", qty: 40 } ] },
+  { item: "postcard", status: "A", size: { h: 10, w: 15.25, uom: "cm" }, instock: [ { warehouse: "B", qty: 15 }, { warehouse: "C", qty: 35 } ] }
+]);
+
+// return specified fields and _id 
+examples> db.inventory.find({status: 'A'}, {item:1, status:1})
+
+// remove _id from result 
+examples> db.inventory.find({status: 'A'}, {item:1, status:1, _id: 0 })
+
+// return all but the excluded fields
+examples> db.inventory.find({status: 'A'}, {_id: 0, instock: 0 })
+
+// return specific fields in embedded documents 
+examples> db.inventory.find({status: 'A'}, {_id: 0, "size.h": 1, item: 1})
+db.inventory.find({status: 'A'}, {_id: 0, "size.h": 1, item: 1, "instock.warehouse":1})
+
+// suppress field in embedded document 
+examples> db.inventory.find({},{size: {h: 0, w: 0}})
+
+// include only first element in instock array 
+examples> db.inventory.find({},{instock: {$slice: 1}})
+
+// include only first two docs in instock array 
+examples> db.inventory.find({},{instock: {$slice: 2}})
+
+// include only last doc in instock array 
+examples> db.inventory.find({},{instock: {$slice: -1}})
+
+
+
+
