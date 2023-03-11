@@ -1,0 +1,75 @@
+// prep 
+db.students.insertMany( [
+   { _id: 1, test1: 95, test2: 92, test3: 90, modified: new Date("01/05/2020") },
+   { _id: 2, test1: 98, test2: 100, test3: 102, modified: new Date("01/05/2020") },
+   { _id: 3, test1: 95, test2: 110, modified: new Date("01/04/2020") }
+] )
+
+// update one 
+// use NOW aggregation variable for current date 
+examples> db.students.updateOne({ _id: 3}, [ { $set: {"test3": 98, modified: "$$NOW" } } ])
+
+// standardize the fields for the documents 
+examples> db.students2.updateMany({}, [
+... { $replaceRoot: { newRoot: { $mergeObjects: [{quiz1: 0, quiz2: 0, test1: 0, test2: 0 }, "$$ROOT" ] } } },
+... { $set: { modified: "$$NOW" } } ])
+
+// update and set average 
+examples> db.students3.updateMany({}, [
+... { $set: { average: { $trunc: [ { $avg: "$tests" }, 0] } } } ])
+
+
+// set average2, not truncating 
+examples> db.students3.updateMany({}, [ { $set: { average2: { $avg: "$tests" } } }])
+
+// set average3 by truncating average2 
+examples> db.students3.updateMany({}, [ { $set: { average3: { $trunc: [ "$average2", 1 ] } } } ])
+
+// set average again 
+examples> db.students3.update({ _id: 3 }, [{ $set: { averageAgain: "$average"  } }])
+
+// perform many updates on a record at once
+examples> db.students.updateOne({_id: 2}, [ { $set: {c1: 100}}, { $set: {c2: 200} }, {$set:{c3: 300}} ]
+... )
+
+
+
+
+examples> db.students3.updateMany({}, [{ $set: { av: { $trunc: [{ $avg: "$tests" }, 2] } } }, { $set: { grade: { $switch: { branches: [{ case: { $gte: ["$av", 90] }, then: "A" }, { case: { $gte: ["$av", 80] }, then: "B" }, { case: { $gte: ["$av", 60] }, then: "C" }, { case: { $gte: ["$av", 40] }, then: "D" }, { case: { $gte: ["$av", 30] }, then: "E" }], default: "F" } } } }])
+
+// update array 
+// prep data 
+db.students4.insertMany( [
+  { "_id" : 1, "quizzes" : [ 4, 6, 7 ] },
+  { "_id" : 2, "quizzes" : [ 5 ] },
+  { "_id" : 3, "quizzes" : [ 10, 10, 10 ] }
+] )
+
+// perform update array 
+examples> db.students4.updateOne({ _id: 2 }, [
+... { $set: { quizzes: { $concatArrays: ["$quizzes", [10,
+ 20] ] } } }
+... ])
+
+// $addFields and $map
+// step1: prep 
+db.temperatures.insertMany( [
+  { "_id" : 1, "date" : ISODate("2019-06-23"), "tempsC" : [ 4, 12, 17 ] },
+  { "_id" : 2, "date" : ISODate("2019-07-07"), "tempsC" : [ 14, 24, 11 ] },
+  { "_id" : 3, "date" : ISODate("2019-10-30"), "tempsC" : [ 18, 6, 8 ] }
+] )
+
+// step2: perform update 
+examples> db.temperatures.updateMany({ }, [ { $addFields: {"tempsF": { $map: { input: "$tempsC", as: "celsius", in: { $add: [ {$multiply: ["$$celsius", 9/5 ]}, 32 ]} } } }} ])
+
+
+
+
+
+
+
+
+
+
+
+
