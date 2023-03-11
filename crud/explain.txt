@@ -1,0 +1,204 @@
+// prep 
+examples> db.inventory.insertMany([{ "_id" : 1, "item" : "f1", type: "food", quantity: 500 },
+... { "_id" : 2, "item" : "f2", type: "food", quantity: 100 },
+... { "_id" : 3, "item" : "p1", type: "paper", quantity: 200 },
+... { "_id" : 4, "item" : "p2", type: "paper", quantity: 150 },
+... { "_id" : 5, "item" : "f3", type: "food", quantity: 300 },
+... { "_id" : 6, "item" : "t1", type: "toys", quantity: 50
+0 },
+... { "_id" : 7, "item" : "a1", type: "apparel", quantity:
+ 250 },
+... { "_id" : 8, "item" : "a2", type: "apparel", quantity:
+ 400 },
+... { "_id" : 9, "item" : "t2", type: "toys", quantity: 50 },
+... { "_id" : 10, "item" : "f4", type: "food", quantity: 75 },])
+
+// run filter query 
+examples> db.inventory.find({ quantity: {$gte: 100, $lte: 200 }})
+
+// find out execution plan selected
+examples> db.inventory.find({ quantity: {$gte: 100, $lte: 200 }}).explain("executionStats")
+// result:
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'examples.inventory',
+    indexFilterSet: false,
+    parsedQuery: {
+      '$and': [ { quantity: { '$lte': 200 } }, { quantity: { '$gte': 100 } } ]
+    },
+    queryHash: '3F9352EE',
+    planCacheKey: '3F9352EE',
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    winningPlan: {
+      stage: 'COLLSCAN',
+      filter: {
+        '$and': [
+          { quantity: { '$lte': 200 } },
+          { quantity: { '$gte': 100 } }
+        ]
+      },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 3,
+    executionTimeMillis: 8,
+    totalKeysExamined: 0,
+    totalDocsExamined: 10,
+    executionStages: {
+      stage: 'COLLSCAN',
+      filter: {
+        '$and': [
+          { quantity: { '$lte': 200 } },
+          { quantity: { '$gte': 100 } }
+        ]
+      },
+      nReturned: 3,
+      executionTimeMillisEstimate: 0,
+      works: 12,
+      advanced: 3,
+      needTime: 8,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 10
+    }
+  },
+  command: {
+    find: 'inventory',
+    filter: { quantity: { '$gte': 100, '$lte': 200 } },
+    '$db': 'examples'
+  },
+  serverInfo: {
+    host: 'HRP-SSG',
+    port: 27017,
+    version: '6.0.4',
+    gitVersion: '44ff59461c1353638a71e710f385a566bcd2f547'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600
+  },
+  ok: 1
+}
+
+// create an index on the quantity field 
+examples> db.inventory.createIndex({ quantity: 1 })
+
+// view query plan statistics again 
+examples> db.inventory.find({ quantity: {$gte: 100, $lte: 200 }}).explain("executionStats")
+// result:
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'examples.inventory',
+    indexFilterSet: false,
+    parsedQuery: {
+      '$and': [ { quantity: { '$lte': 200 } }, { quantity: { '$gte': 100 } } ]
+    },
+    queryHash: '3F9352EE',
+    planCacheKey: '56E34C24',
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    winningPlan: {
+      stage: 'FETCH',
+      inputStage: {
+        stage: 'IXSCAN',
+        keyPattern: { quantity: 1 },
+        indexName: 'quantity_1',
+        isMultiKey: false,
+        multiKeyPaths: { quantity: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { quantity: [ '[100, 200]' ] }
+      }
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 3,
+    executionTimeMillis: 0,
+    totalKeysExamined: 3,
+    totalDocsExamined: 3,
+    executionStages: {
+      stage: 'FETCH',
+      nReturned: 3,
+      executionTimeMillisEstimate: 0,
+      works: 4,
+      advanced: 3,
+      needTime: 0,
+      needYield: 0,
+      saveState: 0,
+      restoreState: 0,
+      isEOF: 1,
+      docsExamined: 3,
+      alreadyHasObj: 0,
+      inputStage: {
+        stage: 'IXSCAN',
+        nReturned: 3,
+        executionTimeMillisEstimate: 0,
+        works: 4,
+        advanced: 3,
+        needTime: 0,
+        needYield: 0,
+        saveState: 0,
+        restoreState: 0,
+        isEOF: 1,
+        keyPattern: { quantity: 1 },
+        indexName: 'quantity_1',
+        isMultiKey: false,
+        multiKeyPaths: { quantity: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { quantity: [ '[100, 200]' ] },
+        keysExamined: 3,
+        seeks: 1,
+        dupsTested: 0,
+        dupsDropped: 0
+      }
+    }
+  },
+  command: {
+    find: 'inventory',
+    filter: { quantity: { '$gte': 100, '$lte': 200 } },
+    '$db': 'examples'
+  },
+  serverInfo: {
+    host: 'HRP-SSG',
+    port: 27017,
+    version: '6.0.4',
+    gitVersion: '44ff59461c1353638a71e710f385a566bcd2f547'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600
+  },
+  ok: 1
+}
