@@ -1,0 +1,10 @@
+// mongosh 
+// create and iterate cursor manually 
+examples> let curs = db.inventory.find()
+examples> curs.limit(2)
+examples> curs.next()
+examples> printjson(curs.next())
+examples> curs.forEach(d => console.log(d))
+examples> let arr = curs.toArray()
+examples> curs.objsLeftInBatch()
+
