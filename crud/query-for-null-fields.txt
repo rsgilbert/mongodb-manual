@@ -1,0 +1,25 @@
+// prep 
+examples> db.inventory.insertMany([{_id:1, item: null}, {_id:2, item:"Teti"}, {_id:3}])
+
+// query for null or missing value 
+examples> db.inventory.find({item: null})
+
+// docs where the value of the item field has the type null (type number of null is 10)
+// wont include docs where the field is missing 
+examples> db.inventory.find({item: { $type: 10}})
+
+// find docs that do not contain item field 
+examples> db.inventory.find({item: { $exists: false}})
+
+
+
+
+
+
+
+
+
+
+
+
+
