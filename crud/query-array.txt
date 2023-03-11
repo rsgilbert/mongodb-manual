@@ -1,0 +1,49 @@
+// create data 
+db.inventory.insertMany([
+   { item: "journal", qty: 25, tags: ["blank", "red"], dim_cm: [ 14, 21 ] },
+   { item: "notebook", qty: 50, tags: ["red", "blank"], dim_cm: [ 14, 21 ] },
+   { item: "paper", qty: 100, tags: ["red", "blank", "plain"], dim_cm: [ 14, 21 ] },
+   { item: "planner", qty: 75, tags: ["blank", "red"], dim_cm: [ 22.85, 30 ] },
+   { item: "postcard", qty: 45, tags: ["blue"], dim_cm: [ 10, 15.25 ] }
+]);
+
+// filter on exact array match 
+examples> db.inventory.find({ tags: ['blue']} )
+
+// filter those that contain given tags 
+// disregard order 
+examples> db.inventory.find({ tags: { $all: ['red', 'blank' ] } })
+
+// query for documents where the array contains given element 
+examples> db.inventory.find({ tags: 'red' } )
+examples> db.inventory.find({ dim_cm: { $lt: 12 } })
+
+// compound filter. Elements in the array in some combination satisfy criteria. 
+// eg one element is satisfies gt constraint, another element in the same array satisifes the $lt constraint
+examples> db.inventory.find({ dim_cm: { $lt: 12, $gt: 15 } })
+examples> db.inventory.find({ tags: { $regex: /^p/ , $gt: 'queen' } })  // gives an element 
+
+// query for an array element that meets multiple criteria
+examples> db.inventory.find({ tags: { $elemMatch: { $regex: /^p/ , $gt: 'queen' } } }) // empty result 
+
+// query by array index position 
+examples> db.inventory.find({ "dim_cm.1": 30})
+examples> db.inventory.find({"tags.0": "blank"})
+
+// query by number of elements in array 
+examples>  db.inventory.find({"tags": { $size: 3 } })
+
+
+// create test data 
+examples> db.people.insertMany([{ name: "Sam", friends: [ {name: "Dean", age: 25 }, {name: "Michael", age: 100000 }] }, { name: "Aang", friends: [{name: "Katara", age: 15}, {name: "Toph", age: 12}, {name: "Soka", age: 16}]}])
+
+// find person with 3 friends 
+examples> db.people.find({ friends: {$size: 3}})
+
+// docs where third friend is named Soka 
+examples> db.people.find({ "friends.2.name": "Soka" })
+
+// docs where there is a friend whose age is greater than 100 
+examples> db.people.find({ "friends.age": {$gt:100} })
+
+

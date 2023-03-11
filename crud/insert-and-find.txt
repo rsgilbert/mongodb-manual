@@ -1,0 +1,40 @@
+// insert 
+examples> db.users.insertOne({
+... name: "sue",
+... age: 26,
+... status: "pending"
+... })
+
+// find 
+examples> db.users.find()
+examples> db.users.find().limit(2)
+examples> db.users.find({ age: 20 })
+examples> db.users.find({ age: { $lt: 20 } })
+examples> db.users.find({ age: { $lt: 30 } }, { name: 1, age: 1 })
+
+// update 
+examples> db.users.updateMany(
+... { status: "open" },
+... { $set: { status: "pending" } }
+... )
+
+// delete 
+examples> db.users.deleteOne({ status: "pending" })
+
+// query 
+examples> db.inventory.find({ status: { $in: ["A", "D"] } })
+
+// `and` conditions 
+examples> db.inventory.find({ status: "A", qty: {$lt: 30 } })
+
+// `or` operator 
+examples> db.inventory.find({ $or: [{status: "D"}, {qty: {$lt: 30} }] })
+
+// regex
+// startswith 
+examples> db.inventory.find({ item: /^p/ })
+// startswith p, ends with r 
+examples> db.inventory.find({$or: [{ item: { $regex: '^p[a-zA-Z]*r$'} }]})
+
+
+

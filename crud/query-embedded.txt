@@ -1,0 +1,8 @@
+// filter by embedded document
+examples> db.inventory.find({ size: { h: 8.5, w:11, uom: 'in'  } })
+
+// match on nested field 
+examples> db.inventory.find({ "size.w": 11 })
+examples> db.inventory.countDocuments({ "size.w": {$gt: 15} })
+
+
