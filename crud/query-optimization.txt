@@ -1,0 +1,28 @@
+// create a descending order index on item 
+examples> db.inventory.createIndex({ item: -1 })
+
+
+// $nin
+examples> db.inventory.find({ _id: { $nin: [2, 3] } })examples> db.inventory.find({ _id: { $nin: [2, 3] } })
+
+// $ne 
+examples> db.inventory.find({ _id: { $ne: 2 } })
+
+// covered query 
+//given this index 
+examples> db.inventory.createIndex({ type: 1, item: 1 })
+
+// this query is fully covered / satisfied by an index 
+
+examples> db.inventory.find({ type: "food", item: /f/ }, { item: 1, _id: 0}).explain('executionStats')
+
+
+// create index on embedded document 
+examples> db.userdata.insertOne({ _id:1, user: {login:"tester" } })
+{ acknowledged: true, insertedId: 1 }
+examples> db.userdata.find()
+[ { _id: 1, user: { login: 'tester' } } ]
+examples> db.userdata.createIndex({ "user.login": 1}
+)
+user.login_1
+
