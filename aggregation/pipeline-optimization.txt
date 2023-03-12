@@ -1,0 +1,15 @@
+// prep 
+examples> db.exams.insertMany([{ student: "James", marks: [50,70, 65,80] }, {student:"Eve", marks: [100, 66, 80, 92] }, { student: "Gilbert", marks: [96, 97, 90, 88] }])
+
+// $addFields 
+examples> db.exams.aggregate([ { $addFields: { maxMark: { $max: "$marks" }, minMark: { $min: "$marks" } } } ])
+
+examples> db.exams.aggregate([{ $addFields: { maxMark: { $max: "$marks" }, minMark: { $min: "$marks" } } }, { $project: { _id: 0, student: 1, marks: 1, maxMark: 1, minMark: 1, minMaxAvgMark: { $avg: ["$minMark", "$maxMark"] }, avgMark: { $avg: "$marks" } } }, {$match: {avgMark: {$gte: 80} } }])
+
+// include $sort 
+examples> db.exams.aggregate([{$sort: {avgMark: 1} }, { $addFields: { maxMark: { $max: "$marks" }, minMark: { $min: "$marks" } } }, { $project: { _id: 0, student: 1, marks: 1, maxMark: 1, minMark: 1, minMaxAvgMark: { $avg: ["$minMark", "$maxMark"] }, avgMark: { $avg: "$marks" } } }, {$match: {avgMark: {$gte: 60} } } ])
+
+// include $skip 
+examples> db.exams.aggregate([{ $addFields: { maxMark: { $max: "$marks" }, minMark: { $min: "$marks" } } }, { $project: { _id: 0, student: 1, marks: 1, maxMark: 1, minMark: 1, minMaxAvgMark: { $avg: ["$minMark", "$maxMark"] }, avgMark: { $avg: "$marks" } } }, {$match: {avgMark: {$gte: 60} } }, { $sort: {avgMark: -1} }, { $skip: 1} ])
+
+

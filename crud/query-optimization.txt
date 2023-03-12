@@ -13,9 +13,9 @@ examples> db.inventory.find({ _id: { $ne: 2 } })
 examples> db.inventory.createIndex({ type: 1, item: 1 })
 
 // this query is fully covered / satisfied by an index 
-
-examples> db.inventory.find({ type: "food", item: /f/ }, { item: 1, _id: 0}).explain('executionStats')
-
+// we know it is a covered query because the explain stats show that totalDocsExamined = 0, and the winningPlan stage is IXSCAN and not a descendant of FETCH stage 
+examples> db.inventory.find({ type: "food" }, { _id:
+ 0, item: 1}).explain('executionStats')
 
 // create index on embedded document 
 examples> db.userdata.insertOne({ _id:1, user: {login:"tester" } })
@@ -25,4 +25,11 @@ examples> db.userdata.find()
 examples> db.userdata.createIndex({ "user.login": 1}
 )
 user.login_1
+
+// use hint() to select a particular index 
+examples> db.inventory.find({ type: "food", price: {$gte: 300 } }).hint('price_1').explain('executionStats')
+
+// a query that uses multiple indices and multiple inputStages
+examples> db.inventory.find({ $or: [ {type: "food"}, {price: {$gte: 300 } } ] }, { _id: 0, item: 1}).explain('executionStats') 
+
 

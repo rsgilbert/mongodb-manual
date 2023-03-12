@@ -1,0 +1,32 @@
+// prep 
+examples> db.users.insertMany([{
+...   _id : "jane",
+...   joined : ISODate("2011-03-02"),
+...   likes : ["golf", "racquetball"]
+... },{
+...   _id : "joe",
+...   joined : ISODate("2012-07-02"),
+...   likes : ["tennis", "golf", "swimming"]
+... }])
+
+// normalize and sort docs 
+examples> db.users.aggregate([ { $project: { name: { $toUpper: "$_id" }, _id: 0 } }])
+[ { name: 'JANE' }, { name: 'JOE' } ]
+examples> db.users.aggregate([ { $project: { name: { $toUpper: "$_id" }, _id: 0 } }, { $sort: {name: 1} }])
+
+// sort by month joined 
+examples> db.users.aggregate([ { $project: { name: { $toUpper: "$_id" }, monthJoined: { $month: "$joined" }, _id: 0 } }, { $sort: {monthJoined: 1} }])
+
+
+// movies released each month of the year 
+sample_mflix> db.movies.aggregate([ { $project: { monthReleased: { $month: "$released" } } }, { $group: { _id: { monthReleased: "$monthReleased" }, number: { $sum: 1 } } }, { $sort: {"_id.monthReleased": 1 } }])
+
+// top liked games 
+examples> db.users.aggregate([ { $unwind: "$likes" }, {$group: { _id: "$likes", number: { $sum: 1} } }, { $sort: {number: -1} }, {$limit: 3} ])
+
+
+
+
+
+
+
