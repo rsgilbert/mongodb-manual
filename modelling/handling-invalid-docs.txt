@@ -1,0 +1,32 @@
+// create contacts collection with validation and validationAction set to error 
+examples> db.createCollection('contacts', { validator: { $jsonSchema: { bsonType: "object", required: ['phone'], properties: { phone: { bsonType: 'string', description: 'phone must be a string and is required' }, email: { bsonType: 'string', pattern: '@mongodb\\.com$', description: 'email must be a string ending with @mongodb.com' } } } }, validationAction: 'error' }) 
+
+// create collection with validationAction of warn 
+examples> db.createCollection('contacts2', { validator: { $jsonSchema: { bsonType: "object", required: ['phone'], properties: { phone: { bsonType: 'string', description: 'phone must be a string and is required' }, email: { bsonType: 'string', pattern: '@mongodb\\.com$', description: 'email must be a string ending with @mongodb.com' } } } }, validationAction:
+ 'warn' })
+
+// see log 
+db.adminCommand({ getLog: 'global' }).log
+
+// find a list of objects that match json schema 
+examples> db.contacts2.find({$jsonSchema: { bsonType: "object", required: ['phone'], properties: { phone: { bsonType: 'string', description: 'phone must be a string and is required' }, email: { bsonType: 'string', pattern: '@mongodb\\.com$', description: 'email must be a string ending with @mongodb.com' } } } })
+examples> db.contacts2.find({$jsonSchema: { bsonType: "object", properties: { phone: { bsonType: 'string' }, email: { bsonType: 'string'  } } } })
+examples> db.contacts2.find({ $jsonSchema: { properties: { email: {pattern: '@mongodb\\.com$' } } } })
+examples> db.contacts2.aggregate([{ $match:  { $jsonSchema: { properties: { email: {pattern: '@mongodb\\.com$' } } }  } }])
+
+
+// find documents that do not match a schema 
+examples> db.contacts2.aggregate([{ $match: { $nor:[ { $jsonSchema: { properties: { email: {pattern: '@mongodb\\.com$' } } } }] } }])
+examples> db.contacts2.find({$nor:[ { $jsonSchema: { properties: { email: {pattern: '@mongodb\\.com$' } }} }]})
+
+// update documents that do not match a schema 
+examples> db.contacts2.updateMany({$nor:[ { $jsonSchema: { properties: { email: {pattern: '@mongodb\\.com$' } }} }]}, { $set: {isValid: false} } )
+
+// delete objects that do not match a schema
+examples> db.contacts2.deleteMany({$nor:[ { $jsonSchema: { required: ['phone'], properties: { email: {pattern: '@mongodb\\.com$' } }} }]} )
+
+// insert document bypassing validations 
+examples> db.runCommand({ insert: 'contacts', documents: [ { age: 10, invalid: true }], bybypassDocumentValidation: true })
+
+// insert valid doc , no need to by pass validation 
+examples> db.runCommand({ insert: 'contacts', documents: [ { phone: '123', email: 'k@mongodb.com' }] })
