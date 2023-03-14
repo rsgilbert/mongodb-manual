@@ -1,0 +1,27 @@
+examples> db.createCollection("users", { validator: { $jsonSchema: { bsonType: "object", required: ["username", "password" ], properties: { username: { bsonType: "string", description: "username must be a string and is required", }, password: { bsonType: "string", minLength: 5, description: "password must be a string of atleast 5 characters and is required" 
+}
+... }
+... }
+... }
+... }
+... )
+
+// insert data 
+examples> db.users.insertMany([ { username: "Apollo", password: "p123xyz" }, { username: "Jane", password: "onetime" },
+... { username: "Ken", password: "oh this is great" }
+... ])
+
+// modify validation 
+examples> db.runCommand( { collMod: "users", validator: {
+... $jsonSchema: { bsonType: "object", required: ["username", "password" ], properties: { username: { bsonType: "string", description: "username must be a string and is required", }, password: { bsonType: "string", minLength: 7, description: "password must be a string of atleast 7 characters and is required" } 
+... }
+... }
+... }
+... }
+... )
+
+// perform an update on a document 
+examples> db.users.updateOne({ username: "Apollo" }, { $set: {admin: true, password: "longest password" } })
+
+// change validation level to moderate 
+examples> db.runCommand({ collMod: "users", validator: { $jsonSchema: { bsonType: "object", required: ["username", "password"], properties: { username: { bsonType: "string", description: "username must be a string and is required" }, password: { bsonType: "string", minLength: 10, description: "password must be a string of atleast 10 characters and is required" } } } }, validationLevel: "moderate" })

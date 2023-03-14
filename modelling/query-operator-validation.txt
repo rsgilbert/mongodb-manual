@@ -1,0 +1,26 @@
+{
+  $expr: {
+    $eq: [
+      '$totalWithVAT',
+      {
+        $multiply: [
+          '$total',
+          {
+            $sum: [
+              1,
+              '$VAT'
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+
+examples> db.orders.insertOne({ total: 100, VAT: 0.18, totalWithVAT: 118 })
+
+
+
+
+

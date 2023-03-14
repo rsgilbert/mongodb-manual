@@ -1,0 +1,15 @@
+examples> db.createCollection("shipping", {
+... validator: {
+... $jsonSchema: {
+... bsonType: "object",
+... title: "Shipping Country Validation",
+... properties: {
+... country: {
+... enum: ["France", "United Kingdom","Uganda"],
+... description: "Must be either France, United Kingdom or Uganda"
+... }
+... }
+... }
+... }
+... }
+... )

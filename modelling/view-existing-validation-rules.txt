@@ -1,0 +1,3 @@
+// view validation rules for a collection 
+examples> db.getCollectionInfos({ name: "students" })
+examples> db.runCommand( { listCollections: 1 , filter: {name: "students" } })

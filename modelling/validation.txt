@@ -1,0 +1,69 @@
+// create a collection with validation 
+examples> db.createCollection("students", {
+... validator: {
+... $jsonSchema: {
+... bsonType: "object",
+... title: "Student Object Validation",
+... required: ["address", "major", "name", "year" ],
+... properties: {
+... name: {
+... bsonType: "string",
+... description: "'name' must be a string and is required"
+... },
+... year: {
+... bsonType: "int",
+... minimum: 2017,
+... maximum: 2050,
+... description: "year must be an integer in range 2017 to 2050 and is r
+equired",
+... },
+... gpa: {
+... bsonType: ["double"],
+... description: "gpa must be a double if the field exists"
+... }
+... }
+... }
+... }
+... }
+... )
+
+
+
+//  validation using query operators 
+examples> db.createCollection("sales", {
+... validator: {
+... "$and": [
+... { "$expr": {
+... "$lt": ["$lineItems.discountPrice", "$lineItems.price" ]
+... }
+... },
+... {
+... "$jsonSchema": {
+... "properties": {
+... "items": {"bsonType": "array" }
+... }
+... }
+... }
+... ]
+... }
+... }
+... )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
