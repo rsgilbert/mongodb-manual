@@ -1,0 +1,33 @@
+// create test collection
+test> db.companies.insertMany([{ rating: 10, name: 'Apple', location: {  city: 'New York', country: 'USA' } },
+... { rating: 5, name: 'HRP', location: { city: 'Kampala', country: 'UG' } }, { rating: 7.5, name: 'BMW', location : { city: 'Berlin', country: 'DE' }} ])
+
+// create ascending index on rating field 
+db.companies.createIndex({ rating: 1 })
+
+// query data 
+test> db.companies.find({ rating: {$gte: 5 } })
+
+// create index on embedded field 
+test> db.companies.createIndex({ 'location.country': 1 })
+
+// query data filtering by embedded field 
+test> db.companies.find({ 'location.country': 'USA' })
+
+// create index on embedded document 
+test> db.companies.createIndex({ location: 1 })
+
+// query by filtering by embedded document
+test> db.companies.find({ 'location': { city: 'Kampala', country: 'UG' } })
+
+// explain query to see if index was used 
+test> db.companies.find({ 'location': { city: 'Kampala', country: 'UG' } }).explain()
+
+
+
+
+
+
+
+
+

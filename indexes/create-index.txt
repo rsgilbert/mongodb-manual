@@ -1,0 +1,35 @@
+// page: https://www.mongodb.com/docs/manual/indexes/
+
+// create a descending index on the name field 
+test> db.stores.createIndex({ name: -1 })
+
+// view index names 
+test> db.stores.getIndexes()
+
+// test collection
+test> db.invoices.insertMany([{ customer: 'Cash', amount: 100, qty: 3 }, { customer: 'Petro', amount: 50, qty: 2 }, { customer: 'Jane', amount: 200, qty: 7 }, {customer: 'Cash', amount: 1000, qty: 1 }, {customer: 'Cash', amount: 300, qty: 7 } ])
+
+// create compound index 
+test> db.invoices.createIndex({ customer: 1, amount: -1 })
+
+// query sorting by customer 
+test> db.invoices.find().sort({ customer: 1 })
+
+// see how the query is going to be run, ie what index is going to be used 
+test> db.invoices.find().sort({ customer: 1 }).explain()
+
+// covered query 
+test> db.invoices.find({ amount: { "$lt": 100 } }, { amount: 1, _id: 0 })
+
+
+
+
+
+
+
+
+
+
+
+
+
